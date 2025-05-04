@@ -19,7 +19,11 @@ import paymentAmounts from '../components/paymentAmounts.vue';
 
 import elevatorLimitSpeedTests from '../components/elevatorLimitSpeedTests_.vue';
 import instrumentManagement from '../components/instrumentManagement.vue';
+<<<<<<< HEAD
 import elevatorInspections from '../components/elevatorInspections_.vue';
+=======
+import elevatorInspections from '../components/elevatorInspections.vue';
+>>>>>>> f4a6d080b910aae224e57d48bcadb43012369eb5
 import networkAccounts from '../components/network-accounts_.vue';
 import checkRecords from '../components/checkRecords.vue';
 
