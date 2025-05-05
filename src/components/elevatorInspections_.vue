@@ -51,14 +51,18 @@
         <!-- 表格内容列 -->
         <el-table-column prop="ID" label="ID" />
         <el-table-column prop="使用单位" label="使用单位" />
-        <el-table-column prop="产品编号" label="产品编号" />
         <el-table-column prop="设备代码" label="设备代码" />
-        <el-table-column prop="制造单位" label="制造单位" />
         <el-table-column prop="年检日期" label="年检日期" />
         <el-table-column prop="下次年检日期" label="下次年检日期" />
         <el-table-column prop="年检中发现的问题" label="年检中发现的问题" />
         <el-table-column prop="整改是否完毕" label="整改是否完毕" />
-        <el-table-column prop="是否合格" label="是否合格" />
+        <el-table-column prop="是否合格" label="是否合格">
+          <template #default="scope">
+            {{ scope.row.是否合格 === '1' ? '合格' : '不合格' }}
+          </template>
+        </el-table-column>
+        <el-table-column prop="整改到期日期" label="整改到期日期" />
+        <el-table-column prop="维保员" label="维保员" />
         
         <!-- 操作列 -->
         <el-table-column label="操作">
@@ -69,7 +73,7 @@
         </el-table-column>
       </el-table>
       
-      <!-- 批量操作区域 -->
+       <!-- 批量操作区域 -->
       <el-row style="margin-top: 15px;">
         <el-col :span="24">
           <el-button 
@@ -109,22 +113,14 @@
         :rules="rules" 
         ref="formRef"
       >
-        <el-form-item label="电梯ID" prop="电梯基本信息表ID">
-          <el-select
-            v-model="formData.电梯基本信息表ID"
-            placeholder="请选择电梯"
-            filterable
-            remote
-            :remote-method="searchElevators"
-            loading-text="加载中..."
-          >
-            <el-option
-              v-for="elevator in elevators"
-              :key="elevator.ID"
-              :label="`${elevator.使用单位} - ${elevator.产品编号} - ${elevator.设备代码}`"
-              :value="elevator.ID"
-            />
-          </el-select>
+        <el-form-item label="使用单位" prop="使用单位">
+          <el-input v-model="formData.使用单位" />
+        </el-form-item>
+        <el-form-item label="设备代码" prop="设备代码">
+          <el-input v-model="formData.设备代码" />
+        </el-form-item>
+        <el-form-item label="维保员" prop="维保员">
+          <el-input v-model="formData.维保员" />
         </el-form-item>
         <el-form-item label="年检日期" prop="年检日期">
           <el-date-picker
@@ -158,6 +154,14 @@
             <el-option label="不合格" value="不合格" />
           </el-select>
         </el-form-item>
+        <el-form-item label="整改到期日期" prop="整改到期日期">
+          <el-date-picker
+            v-model="formData.整改到期日期"
+            type="date"
+            placeholder="选择日期"
+            value-format="YYYY-MM-DD"
+          />
+        </el-form-item>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -175,26 +179,16 @@ import { ElForm, ElMessage } from 'element-plus';
 // 定义接口
 interface Inspection {
   ID: string;
-  '电梯基本信息表ID': string | null;
-  '年检日期': string;
-  '下次年检日期': string;
-  '年检中发现的问题': string;
-  '整改是否完毕': string;
-  '是否合格': string;
   使用单位: string;
-  产品编号: string;
+  年检日期: string;
   设备代码: string;
-  设备品种: string;
-  制造单位: string;
+  年检中发现的问题: string;
+  整改是否完毕: string;
+  是否合格: string;
+  下次年检日期: string;
+  整改到期日期: string;
+  维保员: string;
   [key: string]: any;
-}
-
-interface Elevator {
-  ID: string;
-  使用单位: string;
-  产品编号: string;
-  设备代码: string;
-  制造单位: string;
 }
 
 const formRef = ref<InstanceType<typeof ElForm>>();
@@ -213,26 +207,25 @@ const totalCount = ref(0);
 const dialogVisible = ref(false);
 const formData = ref<Inspection>({
   ID: '',
-  '电梯基本信息表ID': null,
-  '年检日期': '',
-  '下次年检日期': '',
-  '年检中发现的问题': '',
-  '整改是否完毕': '',
-  '是否合格': '',
   使用单位: '',
-  产品编号: '',
+  年检日期: '',
   设备代码: '',
-  设备品种: '',
-  制造单位: '',
+  年检中发现的问题: '',
+  整改是否完毕: '',
+  是否合格: '',
+  下次年检日期: '',
+  整改到期日期: '',
+  维保员: ''
 });
 const dialogTitle = ref('');
-const elevators = ref<Elevator[]>([]);
 const selectedItems = ref<Inspection[]>([]);
 
 const rules = {
-  '电梯基本信息表ID': [{ required: true, message: '电梯ID不能为空', trigger: 'blur' }],
-  '年检日期': [{ required: true, message: '年检日期不能为空', trigger: 'blur' }],
-  '下次年检日期': [{ required: true, message: '下次年检日期不能为空', trigger: 'blur' }]
+  使用单位: [{ required: true, message: '使用单位不能为空', trigger: 'blur' }],
+  年检日期: [{ required: true, message: '年检日期不能为空', trigger: 'blur' }],
+  设备代码: [{ required: true, message: '设备代码不能为空', trigger: 'blur' }],
+  是否合格: [{ required: true, message: '是否合格不能为空', trigger: 'blur' }],
+  下次年检日期: [{ required: true, message: '下次年检日期不能为空', trigger: 'blur' }],
 };
 
 // 获取年检数据
@@ -249,90 +242,143 @@ const fetchData = async () => {
     totalCount.value = response.data.totalCount;
   } catch (error) {
     console.error('获取年检数据时出错:', error);
+    if (error.response && error.response.data && error.response.data.errors) {
+      const backendErrors = error.response.data.errors;
+      let errorMessage = '';
+      backendErrors.forEach(err => {
+        errorMessage += `${err.msg}\n`;
+      });
+      showMessage(errorMessage, 'error');
+    } else {
+      showMessage('获取数据失败，请联系管理员', 'error');
+    }
   }
 };
 
-// 获取电梯数据
-const fetchElevators = async (params?: any) => {
-  try {
-    const response = await axios.get(`${apiBaseUrl}/api/elevatorBasicInfos`, { params });
-    elevators.value = response.data.data as Elevator[];
-  } catch (error) {
-    console.error('获取电梯数据时出错:', error);
-  }
-};
-
-// 搜索功能
+// 搜索结果获取
 const search = () => {
   currentPage.value = 1;
   fetchData();
 };
 
-// 导出数据
+// 导出数据功能
 const exportData = async () => {
   try {
     const response = await axios.get(`${apiBaseUrl}/api/elevatorInspections/export`, { responseType: 'blob' });
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', '电梯年检管理.xlsx');
+    link.setAttribute('download', '电梯_年检情况记录表.xlsx');
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   } catch (error) {
     console.error('导出数据时出错:', error);
+    if (error.response && error.response.data && error.response.data.errors) {
+      const backendErrors = error.response.data.errors;
+      let errorMessage = '';
+      backendErrors.forEach(err => {
+        errorMessage += `${err.msg}\n`;
+      });
+      showMessage(errorMessage, 'error');
+    } else {
+      showMessage('导出数据失败，请联系管理员', 'error');
+    }
   }
 };
 
-// 编辑年检记录
+// 编辑年检记录功能
 const editInspection = (item: Inspection) => {
   formData.value = { ...item };
+  // 如果从后端获取的数据是1或0，转为“合格”或“不合格”
+  if (formData.value.是否合格 === '1') {
+    formData.value.是否合格 = '合格';
+  } else if (formData.value.是否合格 === '0') {
+    formData.value.是否合格 = '不合格';
+  }
   dialogVisible.value = true;
   dialogTitle.value = '编辑年检记录';
 };
 
-// 新增年检记录
+// 新增年检记录功能
 const addInspection = () => {
   formData.value = {
     ID: '',
-    '电梯基本信息表ID': null,
-    '年检日期': '',
-    '下次年检日期': '',
-    '年检中发现的问题': '',
-    '整改是否完毕': '',
-    '是否合格': '',
+    使用单位: '',
+    年检日期: '',
+    设备代码: '',
+    年检中发现的问题: '',
+    整改是否完毕: '',
+    是否合格: '',
+    下次年检日期: '',
+    整改到期日期: '',
+    维保员: ''
   };
   dialogVisible.value = true;
   dialogTitle.value = '新增年检记录';
 };
 
-// 保存表单
+// 保存表单数据功能
 const saveForm = async () => {
   try {
     const isValid = await formRef.value?.validate();
     if (!isValid) return;
 
+    // 保存时将“合格”或“不合格”转为1或0
+    const saveData = { ...formData.value };
+    saveData.是否合格 = saveData.是否合格 === '合格' ? '1' : '0';
+
+    let response;
     if (formData.value.ID) {
-      const { ID, ...rest } = formData.value;
-      await axios.put(`${apiBaseUrl}/api/elevatorInspections/${formData.value.ID}`, rest);
+      // 更新操作
+      const { ID, ...rest } = saveData;
+      response = await axios.put(`${apiBaseUrl}/api/elevatorInspections/${formData.value.ID}`, rest);
     } else {
-      await axios.post(`${apiBaseUrl}/api/elevatorInspections`, formData.value);
+      // 创建操作
+      response = await axios.post(`${apiBaseUrl}/api/elevatorInspections`, saveData);
     }
+
+    // 获取后端返回的提示信息并展示
+    showMessage(response.data.message || '操作成功', 'success');
+
     dialogVisible.value = false;
     fetchData();
   } catch (error) {
     console.error('保存数据时出错:', error);
+
+    if (error.response && error.response.data && error.response.data.errors) {
+      const backendErrors = error.response.data.errors;
+      let errorMessage = '';
+      backendErrors.forEach(err => {
+        errorMessage += `${err.msg}\n`;
+      });
+      showMessage(errorMessage, 'error');
+    } else {
+      showMessage('保存数据失败，请联系管理员', 'error');
+    }
   }
 };
 
-// 删除单条年检记录
+// 删除单条年检记录功能
 const deleteInspection = async (id: string) => {
   if (confirm('确定要删除这条记录吗？')) {
     try {
-      await axios.delete(`${apiBaseUrl}/api/elevatorInspections/${id}`);
+      const response = await axios.delete(`${apiBaseUrl}/api/elevatorInspections/${id}`);
+      showMessage(response.data.message || '删除成功', 'success');
       fetchData();
     } catch (error) {
       console.error('删除数据时出错:', error);
+
+      if (error.response && error.response.data && error.response.data.errors) {
+        const backendErrors = error.response.data.errors;
+        let errorMessage = '';
+        backendErrors.forEach(err => {
+          errorMessage += `${err.msg}\n`;
+        });
+        showMessage(errorMessage, 'error');
+      } else {
+        showMessage('删除数据失败，请联系管理员', 'error');
+      }
     }
   }
 };
@@ -348,20 +394,7 @@ const handleCurrentChange = (newPage: number) => {
   fetchData();
 };
 
-// 搜索结果获取电梯
-const searchElevators = async (query: string) => {
-  if (query) {
-    fetchElevators({
-      q: query,
-      page: 1,
-      limit: 10
-    });
-  } else {
-    fetchElevators();
-  }
-};
-
-// 计算下次年检日期
+// 计算下次年检日期功能
 const calculateNextInspectionDate = (date: string) => {
   if (date) {
     const dateParts = date.split('-');
@@ -384,7 +417,7 @@ const calculateNextInspectionDate = (date: string) => {
   }
 };
 
-// 批量删除
+// 批量删除功能
 const handleSelectionChange = (val: Inspection[]) => {
   selectedItems.value = val;
 };
@@ -398,55 +431,108 @@ const batchDelete = () => {
     );
     
     Promise.all(deletePromises)
-      .then(() => {
-        ElMessage.success('删除成功');
+      .then(responses => {
+        responses.forEach(response => {
+          showMessage(response.data.message || '删除成功', 'success');
+        });
         fetchData();
       })
       .catch(error => {
         console.error('批量删除时出错:', error);
-        ElMessage.error('删除失败');
+
+        if (error.response && error.response.data && error.response.data.errors) {
+          const backendErrors = error.response.data.errors;
+          let errorMessage = '';
+          backendErrors.forEach(err => {
+            errorMessage += `${err.msg}\n`;
+          });
+          showMessage(errorMessage, 'error');
+        } else {
+          showMessage('批量删除失败，请联系管理员', 'error');
+        }
       });
   }
 };
 
-// 删除所有记录
+// 删除所有记录功能
 const deleteAllInspections = () => {
   if (confirm('确定要删除所有记录吗？此操作无法撤销。')) {
     try {
       axios.delete(`${apiBaseUrl}/api/elevatorInspections/delete-all`)
-        .then(() => {
+        .then(response => {
+          showMessage(response.data.message || '所有记录已删除', 'success');
           data.value = [];
           totalCount.value = 0;
-          ElMessage.success('所有记录已删除');
         })
         .catch(error => {
           console.error('删除所有记录时出错:', error);
-          ElMessage.error('删除所有记录失败');
+
+          if (error.response && error.response.data && error.response.data.errors) {
+            const backendErrors = error.response.data.errors;
+            let errorMessage = '';
+            backendErrors.forEach(err => {
+              errorMessage += `${err.msg}\n`;
+            });
+            showMessage(errorMessage, 'error');
+          } else {
+            showMessage('删除所有记录失败，请联系管理员', 'error');
+          }
         });
     } catch (error) {
       console.error('删除所有记录时出错:', error);
+
+      if (error.response && error.response.data && error.response.data.errors) {
+        const backendErrors = error.response.data.errors;
+        let errorMessage = '';
+        backendErrors.forEach(err => {
+          errorMessage += `${err.msg}\n`;
+        });
+        showMessage(errorMessage, 'error');
+      } else {
+        showMessage('删除所有记录失败，请联系管理员', 'error');
+      }
     }
   }
 };
 
-// 上传文件相关
+// 上传文件成功时的处理
 const handleUploadSuccess = (response: { success: boolean; message?: string }, file: File) => {
   if (response.success) {
-    ElMessage.success('文件上传成功');
+    showMessage(response.message || '文件上传成功', 'success');
     fetchData();
   } else {
-    ElMessage.error('文件上传失败: ' + (response.message || '未知错误'));
+    showMessage(response.message || '文件上传失败', 'error');
   }
 };
 
+// 上传文件失败时的处理
 const handleUploadError = (err: Error, file: File) => {
   console.error('文件上传错误:', err);
-  ElMessage.error('文件上传失败');
+  showMessage('文件上传失败，请联系管理员', 'error');
+};
+
+// 显示消息提示
+const showMessage = (message: string, type: 'success' | 'error' | 'warning' | 'info') => {
+  switch (type) {
+    case 'success':
+      ElMessage.success(message);
+      break;
+    case 'error':
+      ElMessage.error(message);
+      break;
+    case 'warning':
+      ElMessage.warning(message);
+      break;
+    case 'info':
+      ElMessage.info(message);
+      break;
+    default:
+      ElMessage.info(message);
+  }
 };
 
 onMounted(() => {
   fetchData();
-  fetchElevators();
 });
 </script>
 
