@@ -5,17 +5,22 @@
         <h1>{{ resourceName }} 管理</h1>
       </template>
       <el-row>
-        <el-form :inline="true" @submit.prevent>
-          <el-form-item v-for="(column, index) in columns.filter(col => col.prop !== 'ID' && col.prop !== '编号')"
-            :key="index" :label="column.label">
+    <el-form :inline="true" @submit.prevent>
+        <el-form-item
+            v-for="(column, index) in columns.filter(col => 
+                col.prop !== 'ID' && col.prop !== '编号' && 
+                !col.label.includes('上行') && !col.label.includes('下行')
+            )"
+            :key="index"
+            :label="column.label">
             <el-input v-model="queryConditions[column.prop]" placeholder="请输入查询条件" clearable />
-          </el-form-item>
-          <el-form-item>
+        </el-form-item>
+        <el-form-item>
             <el-button type="primary" @click="fetchData">查询</el-button>
-          </el-form-item>
-        </el-form>
-      </el-row>
-
+        </el-form-item>
+    </el-form>
+</el-row>
+     
       <el-row>
         <el-col :span="24">
           <el-button type="primary" @click="addItem">新增校验记录</el-button>
@@ -40,6 +45,8 @@
       </el-row>
 
       <el-table :data="data" stripe>
+
+        
         <!-- 过滤掉包含'上行'、'下行'、'机械'、'电器'的列 -->
         <el-table-column v-for="(column, index) in columns.filter(col => 
           !['上行', '下行', '机械', '电器'].some(keyword => col.label.includes(keyword)) && 
