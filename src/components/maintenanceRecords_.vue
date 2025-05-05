@@ -347,7 +347,7 @@ const exportData = async () => {
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
-    link.setAttribute('download', `${resourceName.value}.xlsx`);
+    link.setAttribute('download', `公司_维保台账总表.xlsx`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

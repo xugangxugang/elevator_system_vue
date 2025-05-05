@@ -6,8 +6,10 @@
       </template>
       <el-row>
         <el-form :inline="true" @submit.prevent>
-          <el-form-item v-for="(column, index) in columns.filter(col => col.prop !== 'ID' && col.prop !== '编号')"
-            :key="index" :label="column.label">
+          <el-form-item v-for="(column, index) in columns.filter(col =>
+            col.prop !== 'ID' && col.prop !== '编号' && 
+                !col.label.includes('上行') && !col.label.includes('下行')
+            )" :key="index" :label="column.label">
             <el-input v-model="queryConditions[column.prop]" placeholder="请输入查询条件" clearable />
           </el-form-item>
           <el-form-item>
@@ -40,11 +42,12 @@
       </el-row>
 
       <el-table :data="data" stripe>
+
+
         <!-- 过滤掉包含'上行'、'下行'、'机械'、'电器'的列 -->
-        <el-table-column v-for="(column, index) in columns.filter(col => 
-          !['上行', '下行', '机械', '电器'].some(keyword => col.label.includes(keyword)) && 
-          col.prop !== 'ID')" :key="index"
-          :prop="column.prop" :label="column.label">
+        <el-table-column v-for="(column, index) in columns.filter(col =>
+          !['上行', '下行', '机械', '电器'].some(keyword => col.label.includes(keyword)) &&
+          col.prop !== 'ID')" :key="index" :prop="column.prop" :label="column.label">
         </el-table-column>
         <el-table-column label="操作" fixed="right" width="300px"> <!-- 设置操作列宽度 -->
           <template #default="scope">
@@ -113,7 +116,7 @@
         <el-form-item label="电器下行速度3" prop="电器下行速度3">
           <el-input v-model="formData.电器下行速度3" placeholder="请输入电器下行速度3" />
         </el-form-item>
-      
+
         <el-form-item label="机械下行速度1" prop="机械下行速度1">
           <el-input v-model="formData.机械下行速度1" placeholder="请输入机械下行速度1" />
         </el-form-item>
@@ -146,7 +149,7 @@
 import { ref, onMounted } from 'vue';
 import axios from 'axios';
 import { ElForm, ElMessage, ElMessageBox } from 'element-plus';
-import debounce from 'lodash/debounce';
+
 import { io } from 'socket.io-client';
 
 // WebSocket连接，监听导入进度和结果
@@ -282,35 +285,13 @@ const fetchElevatorInfoByRegistrationCode = async () => {
       formData.value.安全钳名称 = elevatorInfo.安全钳名称 || '渐进式安全钳';
       formData.value.校验仪器编号 = elevatorInfo.校验仪器编号 || 'FC812579';
       formData.value.校验仪器名称 = elevatorInfo.校验仪器名称 || '电梯限速器测试仪';
-      formData.value.限速器型号= elevatorInfo.限速器型号 || 'OX-240';
+      formData.value.限速器型号 = elevatorInfo.限速器型号 || 'OX-240';
     }
   } catch (error) {
     console.error('获取电梯信息失败:', error);
     ElMessage.error('获取电梯信息失败');
   }
 };
-// // 根据设备代码查询电梯信息
-// const fetchElevatorInfoByRegistrationCode = async () => {
-//   if (!formData.value.设备代码) return;
-
-//   try {
-//     const response = await axios.post(`${apiBaseUrl}/api/elevatorInfo/getByRegistrationCode/${formData.value.设备代码}`);
-//     const elevatorInfo = response.data.data;
-
-//     if (elevatorInfo) {
-//       formData.value.额定速度 = elevatorInfo.额定速度;
-//       formData.value.限速器产品编号 = elevatorInfo.产品编号; // 假设后端返回的电梯信息中有产品编号字段
-//       formData.value.使用单位 = elevatorInfo.使用单位 || formData.value.使用单位;
-//       formData.value.使用单位编号 = elevatorInfo.使用单位编号 || formData.value.使用单位编号;
-//       formData.value.安全钳名称 = elevatorInfo.安全钳名称 || '渐进式安全钳';
-//       formData.value.校验仪器编号 = elevatorInfo.校验仪器编号 || 'FC812579';
-//       formData.value.校验仪器名称 = elevatorInfo.校验仪器名称 || '电梯限速器测试仪';
-//     }
-//   } catch (error) {
-//     console.error('获取电梯信息失败:', error);
-//     ElMessage.error('获取电梯信息失败');
-//   }
-// };
 
 // 在addItem函数中不需要设置编号，由后端自动生成
 const addItem = () => {
