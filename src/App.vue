@@ -22,6 +22,8 @@
           </template>
           <el-menu-item index="/networkAccounts">使用单位网络账号管理</el-menu-item>
           <el-menu-item index="/maintenanceRecords">维保台账表</el-menu-item>
+          <el-menu-item index="/">维保情况登记</el-menu-item>
+          
           <el-menu-item index="/maintenanceContracts">维保合同表</el-menu-item>
           <el-menu-item index="/paymentAmounts">收款金额表</el-menu-item>
         </el-sub-menu>
@@ -58,10 +60,10 @@
         <!-- 管理资料生成区模块 -->
         <el-sub-menu index="documentGeneration">
           <template #title>
-            <span>管理资料生成区</span>
+            <span>每个月报表生成</span>
           </template>
 
-          <el-menu-item index="/maintenanceContractCertificate">维保合同证明生成</el-menu-item>
+          <el-menu-item index="/">维保报情况</el-menu-item>
           <el-menu-item index="/selfInspectionReport">自检报告生成</el-menu-item>
           <el-menu-item index="/basicInformationForm">基本情况表生成</el-menu-item>
         </el-sub-menu>

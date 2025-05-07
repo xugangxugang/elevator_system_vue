@@ -7,7 +7,8 @@
       <el-row>
         <!-- 查询表单保持不变 -->
         <el-form :inline="true" @submit.prevent>
-          <el-form-item v-for="(column, index) in columns.filter(col => col.prop !== 'ID')" :key="index" :label="column.label">
+          <el-form-item v-for="(column, index) in columns.filter(col => col.prop !== 'ID')" :key="index"
+            :label="column.label">
             <el-input v-model="queryConditions[column.prop]" placeholder="请输入查询条件" clearable />
           </el-form-item>
           <el-form-item>
@@ -22,28 +23,13 @@
           <el-button type="primary" @click="addItem">新增维保台账</el-button>
           <el-button @click="exportData">导出数据</el-button>
           <el-button type="danger" @click="deleteAllItems">删除所有记录</el-button>
-          
+
           <!-- 批量添加提示框 -->
-          <el-alert
-            title="批量添加"
-            type="info"
-            description="支持Excel格式文件批量导入数据，请确保文件格式正确"
-            show-icon
-          />
-          
-          <el-upload
-            class="custom-upload"
-            drag
-            auto-upload
-            :action="`${apiBaseUrl}/api/maintenanceRecords/import`"
-            :multiple="false"
-            :headers="headers"
-            :before-upload="beforeUpload"
-            :on-success="handleUploadSuccess"
-            :on-error="handleUploadError"
-            :on-progress="handleUploadProgress"
-            accept=".xlsx,.xls"
-            name="file">
+          <el-alert title="批量添加" type="info" description="支持Excel格式文件批量导入数据，请确保文件格式正确" show-icon />
+
+          <el-upload class="custom-upload" drag auto-upload :action="`${apiBaseUrl}/api/maintenanceRecords/import`"
+            :multiple="false" :headers="headers" :before-upload="beforeUpload" :on-success="handleUploadSuccess"
+            :on-error="handleUploadError" :on-progress="handleUploadProgress" accept=".xlsx,.xls" name="file">
             <i class="el-icon-upload"></i>
             <div class="el-upload__text">拖拽文件到此处或 <em>点击上传</em></div>
             <el-progress v-if="uploadProgress" :percentage="uploadProgress" style="margin-top: 10px;" />
@@ -53,11 +39,21 @@
 
       <el-table :data="data" stripe>
         <!-- 动态生成表格列，排除ID列 -->
-        <el-table-column v-for="(column, index) in columns.filter(col => col.prop !== 'ID')" :key="index" :prop="column.prop" :label="column.label">
+        <el-table-column v-for="(column, index) in columns.filter(col => col.prop !== 'ID')" :key="index"
+          :prop="column.prop" :label="column.label" resizable :width="getCustomWidth(column.prop)">
+          <template #default="scope">
+            <!-- 检查是否是日期字段 -->
+            <span v-if="['电梯添加日期', '制动实验检验日期', '限速器校验日期', '年检日期', '免保到期日期', '维保结束日期', '停保日期'].includes(column.prop)">
+              {{ formatDate(scope.row[column.prop]) }}
+            </span>
+            <span v-else>
+              {{ scope.row[column.prop] }}
+            </span>
+          </template>
         </el-table-column>
-        
-        <!-- 合并后的操作列 -->
-        <el-table-column label="操作" fixed="right" width="400">
+
+        <!-- 固定宽度的操作列 -->
+        <el-table-column label="操作" fixed="right" width="600" align="center">
           <template #default="scope">
             <el-button size="small" type="primary" @click="generateElevatorInfoReport(scope.row.ID)">
               <i class="el-icon-document"></i> 生成电梯基本情况表
@@ -73,12 +69,14 @@
           </template>
         </el-table-column>
       </el-table>
-      
+
+
+
       <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
         :page-sizes="[10, 20, 30]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
         :total="totalCount" />
     </el-card>
-    
+
     <!-- Dialog 部分保持不变 -->
     <el-dialog v-model="dialogVisible" :title="dialogTitle">
       <el-form :model="formData" label-width="120px" :rules="rules" ref="formRef">
@@ -172,9 +170,9 @@ import debounce from 'lodash/debounce';
 import { io } from 'socket.io-client';
 
 // 连接WebSocket，监听导入进度和结果
-const socket = io('http://localhost:3000', { 
+const socket = io('http://localhost:3000', {
   transports: ['websocket'],
-  withCredentials: true 
+  withCredentials: true
 });
 socket.on('importProgress', (data) => {
   uploadProgress.value = data.progress;
@@ -295,6 +293,13 @@ const headers = ref({
 
 const uploadProgress = ref(0);
 
+// 日期格式化方法
+const formatDate = (dateString: string): string => {
+  if (!dateString) return '';
+  const date = new Date(dateString);
+  return `${date.getFullYear()}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+};
+
 const fetchData = async () => {
   try {
     const { page, limit, ...conditions } = queryConditions.value;
@@ -307,7 +312,7 @@ const fetchData = async () => {
     // 使用 URLSearchParams 构建查询字符串
     const encodedParams = new URLSearchParams();
     for (const [key, value] of Object.entries(finalQueryConditions)) {
-      if (value !== undefined && value !== null ) {
+      if (value !== undefined && value !== null) {
         encodedParams.append(key, value.toString());
       }
     }
@@ -318,7 +323,6 @@ const fetchData = async () => {
         params: encodedParams,
         headers: {
           'Content-Type': 'application/json; charset=utf-8',
-    
         },
       }
     );
@@ -371,7 +375,7 @@ const addItem = () => {
     使用单位名称: '',
     电梯所在地址: '',
     联系人: '',
-    联系电话: '',
+    联电话: '',
     注册代码: '',
     出厂编号: '',
     CT码: '',
@@ -506,8 +510,26 @@ const generateElevatorInfoReport = async (id: string) => {
   }
 };
 
+const getCustomWidth = (prop: string): string => {
+  const wideColumns = [
+    '台账编号',
+    '电梯添加日期',
+    '使用单位名称',
+    '电梯所在地址',
+    '联系人',
+    '联系电话',
+    '注册代码',
+    '出厂编号',
+    'CT码',
+    '制动实验检验日期',
+    '限速器校验日期',
+    '年检日期',
+    "免保到期日期",
+    "维保结束日期",
+  ];
+  return wideColumns.includes(prop) ? '200px' : '';
+};
 // 新增功能：生成维保合同证明和生成自检报告
-// 新增功能：生成维保合同证明
 const generateContract = async (id: string) => {
   try {
     ElMessage.info('正在生成维保合同证明，请稍候...');
@@ -519,14 +541,12 @@ const generateContract = async (id: string) => {
       }
     );
 
-    // 假设当前行的数据已经包含在 scope.row 中
     const row = data.value.find(item => item.ID === id);
     if (!row) {
       ElMessage.error('未找到对应的维保记录');
       return;
     }
 
-    // 动态生成文件名
     const formattedDate = new Date().toLocaleDateString('zh-CN', {
       year: 'numeric',
       month: '2-digit',
@@ -535,7 +555,6 @@ const generateContract = async (id: string) => {
 
     const fileName = `${row.档案编号}_${row.使用单位名称}_${row.注册代码}_${formattedDate}_维保合同.docx`;
 
-    // 创建文件下载链接
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
@@ -545,7 +564,6 @@ const generateContract = async (id: string) => {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
 
-    // 显示成功消息
     ElMessage.success('维保合同证明生成成功，正在下载...');
   } catch (error) {
     console.error('生成维保合同证明时出错:', error);
@@ -564,14 +582,12 @@ const generateInspectionReport = async (id: string) => {
       }
     );
 
-    // 假设当前行的数据已经包含在 scope.row 中
     const row = data.value.find(item => item.ID === id);
     if (!row) {
       ElMessage.error('未找到对应的维保记录');
       return;
     }
 
-    // 动态生成文件名
     const formattedInspectionDate = new Date().toLocaleDateString('zh-CN', {
       year: 'numeric',
       month: '2-digit',
@@ -579,7 +595,6 @@ const generateInspectionReport = async (id: string) => {
     }).replace(/\//g, '-'); // 格式化日期并替换斜杠为短横线
     const fileName = `${row.档案编号}_${row.使用单位名称}_${row.注册代码}_${formattedInspectionDate}_自检报告.docx`;
 
-    // 创建文件下载链接
     const url = window.URL.createObjectURL(new Blob([response.data]));
     const link = document.createElement('a');
     link.href = url;
@@ -589,7 +604,6 @@ const generateInspectionReport = async (id: string) => {
     document.body.removeChild(link);
     window.URL.revokeObjectURL(url);
 
-    // 显示成功消息
     ElMessage.success('自检报告生成成功，正在下载...');
   } catch (error) {
     console.error('生成自检报告时出错:', error);
@@ -615,4 +629,4 @@ onMounted(() => {
 .custom-upload:hover {
   border-color: #66b1ff;
 }
-</style>    
+</style>
