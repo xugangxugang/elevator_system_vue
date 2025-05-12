@@ -22,7 +22,7 @@
           </template>
           <el-menu-item index="/networkAccounts">使用单位网络账号管理</el-menu-item>
           <el-menu-item index="/maintenanceRecords">维保台账表</el-menu-item>
-          <el-menu-item index="/">维保情况登记</el-menu-item>
+          <el-menu-item index="/EquipmentMaintenanceOrder">设备维保单情况登记</el-menu-item>
           
           <el-menu-item index="/maintenanceContracts">维保合同表</el-menu-item>
           <el-menu-item index="/paymentAmounts">收款金额表</el-menu-item>
