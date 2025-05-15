@@ -10,9 +10,6 @@
           <el-menu-item index="/elevatorInspections">年检管理</el-menu-item>
           <el-menu-item index="/elevatorLimitSpeedTests">限速器管理</el-menu-item>
           <el-menu-item index="/elevatorInfo_">电梯基本信息表</el-menu-item>
-
-
-     
         </el-sub-menu>
 
         <!-- 维保管理模块 -->
@@ -23,7 +20,7 @@
           <el-menu-item index="/networkAccounts">使用单位网络账号管理</el-menu-item>
           <el-menu-item index="/maintenanceRecords">维保台账表</el-menu-item>
           <el-menu-item index="/EquipmentMaintenanceOrder">设备维保单情况登记</el-menu-item>
-          
+
           <el-menu-item index="/maintenanceContracts">维保合同表</el-menu-item>
           <el-menu-item index="/paymentAmounts">收款金额表</el-menu-item>
         </el-sub-menu>
@@ -34,7 +31,6 @@
             <span>公司管理</span>
           </template>
           <el-menu-item index="/instrumentManagement">公司仪器仪表管理</el-menu-item>
-          <el-menu-item index="/contactPersons">使用单位联系人</el-menu-item>
           <el-menu-item index="/Departments">部门</el-menu-item>
           <el-menu-item index="/position">职位</el-menu-item>
           <el-menu-item index="/Employee">职员</el-menu-item>
@@ -45,15 +41,12 @@
           <template #title>
             <span>档案管理</span>
           </template>
-          <el-menu-item index="/FileDistribution_">公司_文件发放控制清单</el-menu-item>
-          <el-menu-item index="/DocumentRecord2">公司_文件发放回收登记表</el-menu-item>
-
-          <el-menu-item index="/FileArchiving_">公司_文件归档登记表</el-menu-item>
-          
-          
+          <el-menu-item index="/FileDistribution_">文件发放控制清单</el-menu-item>
+          <el-menu-item index="/DocumentRecord2">文件发放回收登记表</el-menu-item>
+          <el-menu-item index="/FileArchiving_">文件归档登记表</el-menu-item>
           <el-menu-item index="/checkRecords">档案盒检查</el-menu-item>
           <el-menu-item index="/archiveBoxes">档案盒</el-menu-item>
-          <el-menu-item index="/fileTypes">文件类型</el-menu-item>
+
 
         </el-sub-menu>
 
@@ -63,16 +56,19 @@
             <span>每个月报表生成</span>
           </template>
 
-          <el-menu-item index="/">维保报情况</el-menu-item>
-          <el-menu-item index="/selfInspectionReport">自检报告生成</el-menu-item>
-          <el-menu-item index="/basicInformationForm">基本情况表生成</el-menu-item>
+          <el-menu-item index="/EquipmentMaintenanceOrder_view">维保单情况</el-menu-item>
+          <!-- 在现有菜单区块中添加（建议放在类似功能菜单附近） -->
+          <el-menu-item index="/maintenanceStatistics">
+          
+            <span>电梯维保台账统计</span>
+          </el-menu-item>
         </el-sub-menu>
       </el-menu>
 
     </el-aside>
     <el-container>
       <el-header>
-        <h1>{{ resourceName }} 管理系统</h1>
+        <h1>{{ resourceName }}</h1>
       </el-header>
       <el-main>
         <router-view></router-view>
@@ -85,7 +81,7 @@
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 
-const resourceName = ref('公司_部门表');
+const resourceName = ref('维保状态展示');
 const router = useRouter();
 
 const handleOpen = (key: string | number, keyPath: (string | number)[]) => {

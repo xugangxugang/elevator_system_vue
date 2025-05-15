@@ -1,6 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import App from '../App.vue';
 
+
+
+import MaintenanceStatistics from '../components/MaintenanceStatistics.vue';
+
 // 引入组件
 import staffMembers from '../components/staffMembers_.vue';
 import archiveBoxes from '../components/archiveBoxes.vue';
@@ -15,11 +19,16 @@ import FileDistribution_ from '../components/FileDistribution_.vue';
 import PositionManagement from '../components/PositionManagement_.vue';
 import FileArchiving_ from '../components/FileArchiving_.vue';
 
-import Equipment_Maintenance_Order_ from  "../components/Equipment_Maintenance_Order_.vue";
+import Equipment_Maintenance_Order_ from "../components/Equipment_Maintenance_Order_.vue";
+import EquipmentMaintenanceOrder_view from "../components/EquipmentMaintenanceOrder_view.vue";
 
 // 路由配置
 const routes = [
-    
+    // 基础路由
+    {
+        path: '/EquipmentMaintenanceOrder_view',
+        component: EquipmentMaintenanceOrder_view
+    },
     // 基础路由
     {
         path: '/EquipmentMaintenanceOrder',
@@ -80,6 +89,12 @@ const routes = [
     {
         path: '/FileArchiving_',
         component: FileArchiving_
+    },
+    {
+        path: '/maintenanceStatistics',
+        name: 'MaintenanceStatistics',
+        component: MaintenanceStatistics,
+        meta: { title: '维保台账统计' }
     }
 ];
 
