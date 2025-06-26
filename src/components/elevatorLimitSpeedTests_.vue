@@ -6,10 +6,16 @@
       </template>
       <el-row>
         <el-form :inline="true" @submit.prevent>
-          <el-form-item v-for="(column, index) in columns.filter(col => col.prop !== 'ID' && col.prop !== '编号')"
-            :key="index" :label="column.label">
-            <el-input v-model="queryConditions[column.prop]" placeholder="请输入查询条件" clearable />
-        </el-form-item>
+          <el-form-item label="校验日期">
+  <el-date-picker v-model="queryConditions.校验日期" value-format="YYYY-MM-DD" type="date" placeholder="选择校验日期" />
+</el-form-item>
+<el-form-item label="设备代码">
+  <el-input v-model="queryConditions.设备代码" placeholder="请输入设备代码" clearable />
+</el-form-item>
+<el-form-item label="使用单位">
+  <el-input v-model="queryConditions.使用单位" placeholder="请输入使用单位" clearable />
+</el-form-item>
+    
         <el-form-item>
             <el-button type="primary" @click="fetchData">查询</el-button>
         </el-form-item>

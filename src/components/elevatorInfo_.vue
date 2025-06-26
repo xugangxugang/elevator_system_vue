@@ -14,6 +14,16 @@
         <el-col :span="6">
           <el-button type="primary" @click="addItem">新增电梯信息</el-button>
         </el-col>
+         <el-col :span="6">
+    <el-upload
+      action="#"
+      :show-file-list="false"
+      :before-upload="beforeUpload"
+      accept="image/*"
+    >
+      <el-button type="primary">图片识别</el-button>
+    </el-upload>
+  </el-col>
       </el-row>
       <el-table
         :data="data"
@@ -99,10 +109,13 @@
 </template>
 
 <script setup lang="ts">
+// 在文件顶部添加
+
+
 import { ref, onMounted, computed } from 'vue';
 import axios from 'axios';
-import { ElForm } from 'element-plus';
 
+import { ElForm, ElMessage, ElMessageBox } from 'element-plus';
 // 定义接口
 interface Entity {
   ID: string;
@@ -215,6 +228,51 @@ const formData = ref<Resource>({
   设备品种: ''
 
 });
+
+const beforeUpload = async (file: File) => {
+  const isLt2M = file.size / 1024 / 1024 < 3;
+  if (!isLt2M) {
+    ElMessage.error('图片大小不能超过 2MB!');
+    return false;
+  }
+  const isJPGOrPNG = file.type === 'image/jpeg' || file.type === 'image/png';
+  if (!isJPGOrPNG) {
+    ElMessage.error('只能上传 JPG 或 PNG 格式!');
+    return false;
+  }
+  const formData = new FormData();
+  formData.append('file', file);
+  try {
+    const response = await axios.post(`${apiBaseUrl}/api/elevatorInfo/upload`, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    });
+    if (response.data && response.data.elevatorInfo) {
+      // 将后端返回的电梯信息填充到表单中
+    
+      formData.values = response.data.elevatorInfo;
+      dialogVisible.value = true;
+      dialogTitle.value = '图片识别填充电梯信息';
+    } else {
+      ElMessage.error('无法从图片中识别出有效的电梯信息');
+    }
+  } catch (error) {
+    console.error('上传图片出错:', error);
+    ElMessage.error('上传图片出错');
+  }
+  return false;
+};
+
+
+// 错误处理方法
+const handleAxiosError = (error: any) => {
+  if (error.response) {
+    ElMessage.error(`请求错误: ${error.response.data.message || error.response.status}`);
+  } else {
+    ElMessage.error(`网络错误: ${error.message}`);
+  }
+};
 const dialogTitle = ref('');
 const formRef = ref<InstanceType<typeof ElForm>>();
 
