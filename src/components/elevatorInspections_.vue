@@ -242,20 +242,15 @@ const fetchData = async () => {
     totalCount.value = response.data.totalCount;
   } catch (error) {
     console.error('获取年检数据时出错:', error);
-    if (error.response && error.response.data && error.response.data.errors) {
-      const backendErrors = error.response.data.errors;
-      let errorMessage = '';
-      backendErrors.forEach(err => {
-        errorMessage += `${err.msg}\n`;
-      });
-      showMessage(errorMessage, 'error');
+    if (error instanceof Error) {
+      showMessage('获取数据失败，请联系管理员', 'error');
     } else {
       showMessage('获取数据失败，请联系管理员', 'error');
     }
   }
 };
 
-// 搜索结果获取
+// 搜索功能
 const search = () => {
   currentPage.value = 1;
   fetchData();
@@ -274,13 +269,8 @@ const exportData = async () => {
     document.body.removeChild(link);
   } catch (error) {
     console.error('导出数据时出错:', error);
-    if (error.response && error.response.data && error.response.data.errors) {
-      const backendErrors = error.response.data.errors;
-      let errorMessage = '';
-      backendErrors.forEach(err => {
-        errorMessage += `${err.msg}\n`;
-      });
-      showMessage(errorMessage, 'error');
+    if (error instanceof Error) {
+      showMessage('导出数据失败，请联系管理员', 'error');
     } else {
       showMessage('导出数据失败，请联系管理员', 'error');
     }
@@ -338,21 +328,14 @@ const saveForm = async () => {
       response = await axios.post(`${apiBaseUrl}/api/elevatorInspections`, saveData);
     }
 
-    // 获取后端返回的提示信息并展示
     showMessage(response.data.message || '操作成功', 'success');
 
     dialogVisible.value = false;
     fetchData();
   } catch (error) {
     console.error('保存数据时出错:', error);
-
-    if (error.response && error.response.data && error.response.data.errors) {
-      const backendErrors = error.response.data.errors;
-      let errorMessage = '';
-      backendErrors.forEach(err => {
-        errorMessage += `${err.msg}\n`;
-      });
-      showMessage(errorMessage, 'error');
+    if (error instanceof Error) {
+      showMessage('保存数据失败，请联系管理员', 'error');
     } else {
       showMessage('保存数据失败，请联系管理员', 'error');
     }
@@ -368,14 +351,8 @@ const deleteInspection = async (id: string) => {
       fetchData();
     } catch (error) {
       console.error('删除数据时出错:', error);
-
-      if (error.response && error.response.data && error.response.data.errors) {
-        const backendErrors = error.response.data.errors;
-        let errorMessage = '';
-        backendErrors.forEach(err => {
-          errorMessage += `${err.msg}\n`;
-        });
-        showMessage(errorMessage, 'error');
+      if (error instanceof Error) {
+        showMessage('删除数据失败，请联系管理员', 'error');
       } else {
         showMessage('删除数据失败，请联系管理员', 'error');
       }
@@ -439,14 +416,8 @@ const batchDelete = () => {
       })
       .catch(error => {
         console.error('批量删除时出错:', error);
-
-        if (error.response && error.response.data && error.response.data.errors) {
-          const backendErrors = error.response.data.errors;
-          let errorMessage = '';
-          backendErrors.forEach(err => {
-            errorMessage += `${err.msg}\n`;
-          });
-          showMessage(errorMessage, 'error');
+        if (error instanceof Error) {
+          showMessage('批量删除失败，请联系管理员', 'error');
         } else {
           showMessage('批量删除失败，请联系管理员', 'error');
         }
@@ -466,28 +437,16 @@ const deleteAllInspections = () => {
         })
         .catch(error => {
           console.error('删除所有记录时出错:', error);
-
-          if (error.response && error.response.data && error.response.data.errors) {
-            const backendErrors = error.response.data.errors;
-            let errorMessage = '';
-            backendErrors.forEach(err => {
-              errorMessage += `${err.msg}\n`;
-            });
-            showMessage(errorMessage, 'error');
+          if (error instanceof Error) {
+            showMessage('删除所有记录失败，请联系管理员', 'error');
           } else {
             showMessage('删除所有记录失败，请联系管理员', 'error');
           }
         });
     } catch (error) {
       console.error('删除所有记录时出错:', error);
-
-      if (error.response && error.response.data && error.response.data.errors) {
-        const backendErrors = error.response.data.errors;
-        let errorMessage = '';
-        backendErrors.forEach(err => {
-          errorMessage += `${err.msg}\n`;
-        });
-        showMessage(errorMessage, 'error');
+      if (error instanceof Error) {
+        showMessage('删除所有记录失败，请联系管理员', 'error');
       } else {
         showMessage('删除所有记录失败，请联系管理员', 'error');
       }

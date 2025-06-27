@@ -59,7 +59,7 @@
               <i class="el-icon-document"></i> 生成电梯基本情况表
             </el-button>
             <el-button size="small" type="success" @click="generateContract(scope.row.ID)">
-              <i class="el-icon-document"></i> 生成维保合同
+              <i class="el-icon-document"></i> 生成维保合同证明
             </el-button>
             <el-button size="small" type="warning" @click="generateInspectionReport(scope.row.ID)">
               <i class="el-icon-check"></i> 生成自检报告
